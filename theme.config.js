@@ -46,7 +46,7 @@ export default {
         <meta
           name="og:title"
           content={
-            title + " – RavynOS"
+            title + " – RavynOS Wiki"
           }
         />
         <meta name="apple-mobile-web-app-title" content="RavynOS Wiki" />
