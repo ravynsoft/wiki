@@ -10,6 +10,7 @@
   "": {
     "type": "separator"
   },
+  "supported-hardware": "Supported Hardware",
   "download": "Downloading RavynOS ISOs",
   "installing-ravynos": "Installing RavynOS"
 }
