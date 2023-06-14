@@ -2,11 +2,11 @@
 
 The RavynOS Wiki is a static-site documentation hub for the RavynOS project. This website contains information related to system structure, building ravynOS from source, supported hardware, and among other things ravynOS related.
 
-### General Information
+## General Information
 
 The website is organized into sections, with each section providing detailed information about a specific tool or service. The website also includes a search feature, making it easy for developers to find the information they need quickly and easily.
 
-### Getting Started
+## Getting Started
 
 Building `wiki` is simple, see below.
 
