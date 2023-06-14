@@ -1,0 +1,71 @@
+---
+title: System Layout
+---
+
+# System Layout Overview
+
+RavynOS combines certain aspects of [FreeBSD](https://freebsd.org/), [XDG](https://freedesktop.org/), and [macOS](https://apple.com/). In general, it tries to follow the layout of macOS.
+
+## System Files
+
+FreeBSD's kernel and base runtime is used to provide better hardware compatibility than something based on Apple's [XNU](https://github.com/apple/darwin-xnu) kernel like [PureDarwin](https://puredarwin.org). Using FreeBSD as the base also gives us Linux app compatibility to help fill gaps in application support until Mac apps are fully working.
+
+FreeBSD lives in:
+
+ * <code>/boot</code> 
+ * <code>/bin</code> 
+ * <code>/etc</code>
+ * <code>/lib</code> 
+ * <code>/libexec</code> 
+ * <code>/sbin</code> 
+ * <code>/usr</code> 
+ * <code>/var</code> 
+ 
+Some special directories are also used: 
+
+ * <code>/dev</code> (device files) 
+ * <code>/tmp</code> (temporary files) 
+ * <code>/proc</code> (running process information) 
+ * <code>/media</code>
+ * <code>/mnt</code> 
+ * <code>/net</code> (special mount points - mostly unused in ravynOS). 
+ 
+There is also a small rescue system in <code>/rescue</code> which can be used for system recovery and user <code>root</code>'s files in <code>/root</code>. The source code for this base system can be found in the [RavynOS](https://github.com/ravynsoft/ravynos) repository. For more information on FreeBSD itself, please see the [FreeBSD Handbook](https://docs.freebsd.org/en/books/handbook/) - but be careful! ravynOS is not FreeBSD; it is ''based'' on FreeBSD. There are significant differences.
+
+This RavynOS repository includes our modified compiler and linker (<code>clang</code> and <code>lld</code>) which understand how to build and link ELF Framework bundles.
+
+You can (and should) safely ignore these OS directories unless you are working on the base system.
+
+Most of the system files provided by Ravyn live under <code>/System/Library</code>. Notably, the Cocoa compatibility APIs live in the <code>Frameworks</code> folder here. System fonts exist in the <code>Fonts</code> folder and desktop wallpapers can be found under <code>Desktop Pictures</code>. Important system services like Filer and startup code are found in <code>CoreServices</code> (not to be confused with the <code>CoreServices.framework</code>). Source code for most things here can be found in the main [RavynOS](https://github.com/ravynsoft/ravynos) repository. Some items (like Fonts and Desktop Pictures) are fetched as part of building the Live CD ISO and are then copied into the installed system by the installer. Source code for the CD build can be found in the [RavynOS](https://github.com/ravynsoft/ravynos) GitHub repository.
+
+## Applications
+
+Applications in ravynOS should be packaged as AppBundles with the directory name ending in <code>.app</code> and stored in either <code>/Applications</code> or <code>~/Applications</code> (although they can technically be stored or moved anywhere). Applications may also be packaged in the [AppDir](https://docs.appimage.org/reference/appdir.html) format. Linux applications can also use [AppImage](https://docs.appimage.org/introduction/index.html) format. Bundles are the preferred format.
+
+Some Applications here are provided with ravynOS and others may be installed by users. As on macOS, this is the primary place to find installed software.
+
+Traditional Unix applications and tools generally live in <code>/usr/bin</code> or <code>/usr/local/bin</code> and various other directories such as <code>/usr/share, /var/lib, /etc</code>. Other the ones provided by the system, this type of application should be avoided. (A future package system such as Homebrew will allow sane management of user-installed Unix tools in <code>/usr/local</code>.) If you really need something not provided by the system and not available as an Application, you can build it from the FreeBSD Ports collection.
+
+Each user also has a <code>Applications</code> folder in their home directory.
+
+## Library
+
+<code>/Library</code> is used for system-level or shared files that are not strictly "system" files, such as application-installed fonts and Java SDKs. Think of it roughly like a combination of <code>/usr/lib</code> and <code>/usr/share</code>. Each user has a personal <code>Library</code> folder in their home directory which is used to store per-user configuration, application support data, individual fonts, cached data, etc.
+
+On ravynOS, each user has a LaunchServices database in <code>&#126;/Library/db/launchservices.db</code>. This database controls which applications are known, what types they can open, and which is used to open files. It is maintained by Filer and the <code>open</code> through the <code>LaunchServices.framework</code>.
+
+The XDG folders used by many X11 applications have also been relocated into <code>&#126;/Library</code>.
+* <code>XDG_CONFIG_HOME</code>, normally <code>&#126;/.config</code>, is <code>&#126;/Library/FreeDesktop/config</code>
+* <code>XDG_DATA_HOME</code>, normally <code>&#126;/.local/share</code>, is <code>&#126;/Library/FreeDesktop/share</code>
+
+This means many standard X11 & KDE app config files will be found there instead. (Note: <code>XDG_CACHE_HOME</code> still points to <code>&#126;/.cache</code> but will likely move in the future.)
+
+[This MIT knowledge base article](http://kb.mit.edu/confluence/pages/viewpage.action?pageId=3908373) has a good explanation of the multiple Library folders on macOS.
+
+## Users
+
+As on macOS, RavynOS users have a home folder under <code>/Users</code>. The traditional Unix folders <code>/usr/home</code> and <code>/home</code> are not used.
+
+## Volumes
+
+Any media detected by ravynOS will be mounted under <code>/Volumes</code> in a folder with the filesystem name or label, if it can be determined, and a generic name if not. Other mount points such as <code>/media</code> and <code>/mnt</code> should not be used by applications, but can be used for temporary mounts by developers or users.

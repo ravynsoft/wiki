@@ -1,0 +1,35 @@
+---
+title: Mirror List
+---
+
+import { Callout } from 'nextra/components'
+import { Text } from '@mantine/core';
+
+# ISO Mirror List
+
+Unstable nightly builds are available from our mirror locations.
+
+ * [US West](https://mirrors.nomadlogic.org/)
+ * [US East](https://mirror2.sandyriver.net/pub/ravynos/)
+ * [US East (2)](https://mirror.clarkson.edu/ravynos/)
+ * [US Central](https://mirror.esc7.net/ravynos/)
+ * [CA East](https://mirror.razel.co/)
+ * [EU Denmark](https://mirrors.dotsrc.org/ravynos/)
+ * [EU Norway](http://ftp.nvg.ntnu.no/pub/mirrors2/mirrors.nomadlogic.org/www/)
+ * [EU Germany](https://ftp.fau.de/ravynos/)
+
+## Mirroring RavynOS
+
+If you wish to mirror ravynOS, send us a message and we will help you get setup and added to our official mirror list. We recommend syncing from our primary mirror sites at-least once every 24 hours as we do nightly builds. We recommend at-least 100 gigabytes of storage space to dedicate to the project and a connection speed of at-least 100 megabit/s.
+
+The following script can be used for your initial sync from our primary mirror sites please choose the site closet to you connection wise.
+
+```sh
+rsync -avz --delete --safe-links rsync://mirrors.nomadlogic.org/www/ <target>
+
+rsync -avz --delete --safe-links rsync://mirror2.sandyriver.net/pub/ravynos/ <target>
+```
+
+<Callout type="warning" emoji="🎉">
+  Thank you to our mirror sponsors for providing space and bandwidth for our project!
+</Callout>

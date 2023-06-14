@@ -1,0 +1,32 @@
+---
+title: Building RavynOS locally
+---
+
+# Building RavynOS Locally
+
+We build ravynOS using the services of Cirrus CI, but while hacking on pieces you will need to build parts or all of the system locally. First, please see the [Developer Environment Setup](/setting-up-environment/guide) and [System Layout](/architecture/overview) pages. ravynOS is self-hosting and needs to be built on itself, so make sure you have an installed and running system. This page is just a guide - please see the [.cirrus.yml](https://github.com/ravynsoft/ravynos/blob/main/.cirrus.yml) file for more details of the build commands.
+
+## Preparing to build
+
+The output of the build goes to `/usr/obj/[source path]/[machine architecture]` - e.g. `/usr/obj/Users/you/ravyn/amd64.amd64`. If you don't want to build as root, you need to create the path ahead of time or give yourself ownership of `/usr/obj` with `chown`.
+
+## Building the kernel
+
+Kernel source lives mainly in `sys/` and can be built by doing `make -jX buildkernel` where X is the number of CPUs you can devote to the build. Append `WITHOUT_CLEAN=1` to the buildkernel command if you want to do incremental builds. You can install your kernel and modules with `make installkernel`.
+
+## Building the 'world'
+
+The 'world' is the FreeBSD user parts including C library, compiler toolchain, commands, etc as well as ravynOS additions like launchd, libxpc, libdispatch, and so on. You can build this monster by running `make -jX buildworld MK_LIB32=no`. Append `WITHOUT_CLEAN=1` to the buildworld command to do incremental builds, which are much faster.
+Install it over your running system with `make installworld MK_LIB32=no`
+
+## Packaging the kernel and world
+
+After building kernel and world, you can run `make -C release packagesystem MK_LIB32=no COMPILER_TYPE=clang KERNCONF=RAVYN` to create base.txz and kernel.txz, which are needed to build the ISO. These will end up in `/usr/obj/[source path]/[machine architecture]/release/`.
+
+## Building the extra packages
+
+A big chunk of the system packages are built from the FreeBSD ports tree. See our [repository](https://github.com/ravynsoft/freebsd-ports) for details how to build this phase.
+
+## Building the Frameworks and Desktop
+
+The "upper layers" of ravynOS consist of the Cocoa and Core frameworks, additional tools, Dock, Filer (file manager), menu applets, and so on. This part has not been integrated into the 'world' build yet and can be built with `make -f Makefile.ravynOS` and installed over the running system with `make -f Makefile.ravynOS installravynos` or packaged for the ISO with `make -f Makefile.ravynOS airyx-package`. The output will be in `dist/ravynOS.txz`.

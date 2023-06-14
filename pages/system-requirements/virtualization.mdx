@@ -1,0 +1,43 @@
+---
+title: Virtualization Setup
+---
+
+import { Callout } from 'nextra/components'
+import { Text } from '@mantine/core';
+
+# Virtualization Setup
+
+Virtualization is efficient for developers to develop and design graphical applications without the need to install RavynOS on hardware.
+
+Below are steps on how to setup a virtualized environment for RavynOS to run in.
+
+
+## Preparing
+
+Make sure you have downloaded our ISO, ready to setup your virtualized environment. You can find our mirror list [here](/download/mirror-list) to download an ISO.
+
+## Setting Up
+
+<Callout type="warning" emoji="⚠️">
+  These steps are for Qemu/KVM for use with virsh/virt-manager (tested with v0.3.0)
+</Callout>
+
+ * Create a new virtual machine
+ * Select FreeBSD as the OS
+ * Choose the RavynOS ISO as the install media
+ * Create 20GB in storage
+
+<Callout type="error" emoji="🚫">
+  Before finishing setup, click on "advanced configuration" and make sure to select UEFI instead of BIOS and select i440FX-Chipset (if you use Q35-chipset, virtual graphics tablet driver - as a mouse replacement - might not work)
+</Callout>
+
+ * Finish setup
+ * Don't start the Virtual Machine yet, first you must set the boot option CD-ROM to SATA-type
+ * Set Harddisk to virtio-type
+ * Activate boot menu, and change the boot order to boot from CD first (after installation, change this setting back)
+ * Set Video to VGA instead of QXL
+ * In order to have a "free mouse", you can choose to add "EvTouch USB graphics tabler" --> with booted Desktop, your mouse should 'escape' the vm easily.
+
+<Callout type="info" emoji="ℹ️">
+In the TianoCore UEFI (enter this with the ESC key), it may be helpful to change the preferred screen resolution via Device Manager > OVMF Platform Configuration to something greater than 1024x78
+</Callout>

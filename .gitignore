@@ -1,0 +1,16 @@
+# Generated Files
+/node_modules/
+yarn.lock
+yarn-error.log
+pnpm-lock.yaml
+
+# Next.js directories
+/.next/
+/out/
+next-env.d.ts
+
+# macOS System Files
+.DS_Store
+
+# .vscode files
+/.vscode/

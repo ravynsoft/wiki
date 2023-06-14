@@ -1,0 +1,79 @@
+---
+title: Installing Pygmy Marmoset
+---
+
+import { Callout } from 'nextra/components'
+import { Text } from '@mantine/core';
+
+# Installing Pygmy Marmoset
+
+<Callout type="warning" emoji="⚠️">
+  Snapshots currently do not have a GUI, so the Installer app can't be used. Follow the steps below to install the system manually.
+</Callout>
+
+* Boot the Live ISO and log in to the shell as <code>liveuser</code>
+* Become root with <code>sudo -s</code>
+* Identify the disk to install on using <code>geom disk list</code>. Replace ''device'' in the commands below with this disk name.
+* To use the whole disk
+** Delete any existing partitions using <code>gpart delete</code>
+** Use <code>gpart destroy</code> to clear the geom disk
+** Create a new GPT partition table with <code>gpart create -s gpt ''device''</code>
+* Create an EFI partition with <code>gpart add -t efi -l efi -s 256M ''device''</code>. If you have an existing EFI partition, you can skip this step.
+* Initialize the EFI filesystem with <code>newfs_msdos /dev/''device''p1</code>. If you have an existing EFI partition and want to preserve loaders for other operating systems, you can skip this step.
+* Create a swap partition using <code>gpart add -t freebsd-swap -s 4G ''device''</code> (use whatever size you want)
+* Create a ZFS partition on the rest of the disk using <code>gpart add -t freebsd-zfs -l ravynOS ''device''</code>
+* Initialize the ZFS pool using <code>zpool create -f -R /mnt -O mountpoint=/ -O atime=off -O canmount=off -O compression=on ravynOS ''device''p3</code>
+* Create the ZFS datasets
+** <code>zfs create -o canmount=off -o mountpoint=none ravynOS/ROOT</code>
+** <code>zfs create -o mountpoint=/ ravynOS/ROOT/default</code>
+** You can create additional datasets for future expansion now if you like (e.g. /usr/src, /usr/ports, /var, ...)
+** <code>zpool set bootfs=ravynOS/ROOT/default ravynOS</code>
+* <code>mkdir /tmp/efi</code>
+* <code>mount -t msdosfs /dev/''device''p1 /tmp/efi</code>
+* <code>mkdir -p /tmp/efi/efi/boot</code>
+* <code>cp /boot/loader.efi /tmp/efi/efi/boot/bootx64.efi</code>
+* <code>cp /boot/loader.efi /tmp/efi/efi/boot/loader.efi</code>
+* <code>umount /tmp/efi</code>
+* <code>cat >> /tmp/excludes</code>
+<syntaxhighlight lang="text">
+/dev
+/proc
+/tmp
+</syntaxhighlight>
+
+* Press Ctrl-D to write the file and return to the shell
+
+* <code>cd /sysroot</code>
+* <code>cpdup -uIof -X /tmp/excludes . /mnt</code>
+* Go grab a coffee
+* <code>chroot /mnt /usr/bin/zsh</code> The remaining commands are run in the chroot.
+* <code>/usr/sbin/bsdinstall config</code>
+* <code>/usr/sbin/bsdinstall entropy</code>
+* <code>/usr/sbin/pw userdel -n liveuser</code>
+* <code>/usr/sbin/pw groupdel -n liveuser</code>
+* <code>rm -rf /Users/liveuser</code>
+* <code>/usr/sbin/pkg remove -y furybsd-live-settings freebsd-installer</code>
+* <code>mv /etc/rc.conf.local /etc/rc.conf</code>
+* Edit <code>/etc/rc.conf</code> and ensure it has these entries:
+<syntaxhighlight lang="text">
+zfs_enable="YES"
+zfsd_enable="YES"
+hostname="yourHostname"
+</syntaxhighlight>
+
+* Save and quit
+* Edit <code>/boot/loader.conf</code> and ensure it has these entries:
+<syntaxhighlight lang="text">
+cryptodev_load="YES"
+zfs_load="YES"
+mach_load="YES"
+beastie_disable="YES"
+autoboot_delay="3"
+vfs.root.mountfrom.options="rw"
+vfs.root.mountfrom="zfs:ravynOS/ROOT/default"
+</syntaxhighlight>
+
+* Save and quit
+* Create a user account for yourself with <code>adduser</code>. Be sure to add yourself to the <code>wheel</code> and <code>video</code> groups. Shell should be <code>/usr/bin/zsh</code>
+* Copy an appropriate timezone file from <code>/usr/share/zoneinfo</code> to <code>/etc/localtime</code>
+* Reboot and enjoy!

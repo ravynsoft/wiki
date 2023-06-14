@@ -1,0 +1,34 @@
+---
+title: Welcome
+---
+
+import { Box, Center } from "@mantine/core";
+import { Video } from "../components/Video";
+import { List, Badge, Text, Code as CodeBlock } from '@mantine/core';
+import { Steps } from "../components/Steps";
+import { Callout } from "../components/Callout"
+import { Card, Cards } from 'nextra-theme-docs'
+
+
+# Welcome to the RavynOS Wiki!
+
+RavynOS, an open-source desktop operating system that aims to provide a familiar and user-friendly experience akin to Apple's recent versions of macOS. Designed with compatibility in mind, RavynOS strives to closely resemble macOS in terms of appearance and functionality. While our project is still in its early stages, we are actively making significant progress.
+
+This website serves as a valuable resource for RavynOS developers and subsequently its future users. **It is important to note that this wiki is a work in progress and constantly undergoing improvements.**
+
+We sincerely welcome contributors who can help enhance this Wiki. Your input and assistance will be highly appreciated as we work towards refining and expanding the information available here. <Text variant="link" component="a" style={{ cursor: "pointer" }} href="https://github.com/ravynsoft/wiki"> See our repository  &#8594;</Text>
+
+### Quick Links
+
+<Cards num={3}>
+  <Card image arrow title="Building RavynOS locally" href="/building-ravynos/building">
+    <>![Building RavynOS](../public/images/card1.png)</>
+  </Card>
+  <Card image arrow title="Environment Setup" href="/setting-up-environment/devenv">
+    <>![Environment Setup](../public/images/card2.png)</>
+  </Card>
+  <Card image arrow title="System Layout" href="/architecture/overview">
+    <>![System Layout](../public/images/card3.png)</>
+  </Card>
+</Cards>
+

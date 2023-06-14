@@ -1,0 +1,32 @@
+---
+title: Setting up the Environment
+---
+
+import { Callout } from 'nextra/components'
+import { Text } from '@mantine/core';
+
+# Developer Environment Setup
+
+Developing for ravynOS requires a running ravynOS system to build on. Please make sure your hardware meets the [System Requirements](/system-requirements/overview).
+
+## Installing from the Live USB (or CD)
+
+This will result in a full ravynOS system including the default apps. There is a new AppKit-based installer available since Tanuki 0.3.0, <code>Install ravynOS.app</code>. The legacy <code>Install FreeBSD.app</code> is also still present as a backup. It will be removed once the new installer is more hardened.
+
+<code>Install FreeBSD.app</code> has some problems and may not work for you. The best environment seems to be a non-UEFI system ('Legacy' boot) and SATA disk, which breaks the ravynOS requirement for UEFI. It will also create different ZFS pools and may not upgrade cleanly to future releases.
+
+## Miscellaneous
+
+Once you have the system installed, you'll need a few essentials. Most of what you need will be pre-installed but check out the ravynOS package repo for extra tools with <code>pkg search</code> and <code>pkg install</code>.
+
+For code editing, the default tool is <code>/Applications/Kate.app</code>. It's not exactly Xcode but it's pretty good and has nice color schemes. A reasonable <code>Terminal.app</code> can be found in <code>/Applications/Utilities</code> and Firefox is pre-installed in <code>/Applications</code>.
+
+ravynOS builds most things with Unix Makefiles. See the source repos for some examples. In particular, the include fragments <code>ravynOS.app.mk</code> and <code>ravynOS.framework.mk</code> are available to help build App and Framework Bundles respectively. CMake also knows how to build App Bundles and [Makefiles](https://github.com/ravynsoft/Kate_app/blob/main/Makefile) can be convinced to build a MacOS bundle and Info.plist (on ravynOS) which is then easily converted to an ravynOS bundle.
+
+If you have a Mac, Xcode can be used to build the UI for Objective-C AppKit apps. Compile the project, locate the *.nib files it produces (not the *.xib in your source tree!) and copy those to ravynOS along with the source code. It may just build & run but you will likely have to tweak a few selectors or some <code>retain</code> or <code>autorelease</code> calls. ravynOS's AppKit and Foundation trail behind the latest available APIs.
+
+Another option is to use plain C or C++ with CoreFoundation, CoreGraphics, etc or with Qt 5. Java SDK 17 is also available in <code>/Library/Java/JavaVirtualMachines</code>.
+
+<Callout type="error" emoji="🚫">
+  Swift is not supported yet.
+</Callout>
