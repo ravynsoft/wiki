@@ -1,5 +1,5 @@
 export default {
-  docsRepositoryBase: 'https://github.com/ravynos/wiki/blob/main',  // docsRepository: '',
+  docsRepositoryBase: 'https://github.com/ravynsoft/wiki/blob/main',  // docsRepository: '',
   logo: (
     <>
       <span
