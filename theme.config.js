@@ -33,17 +33,16 @@ export default {
         />
         <link rel="icon" type="image/png" href="/favicon/favicon.png" />
         <link rel="manifest" href="/favicon/manifest.json" />
-        <meta name="Description" content="The RavynOS Wiki. Learn, explore, and discover the RavynOS operating system." />
-        <meta property="og:image" content="https://wiki.ravynos.com/favicon/open_graph_logo.png" />
-        <meta property="og:description" content="The RavynOS Wiki. Learn, explore, and discover the RavynOS operating system." />
+        <meta name="Description" content="Explore the RavynOS Wiki for comprehensive details, uncovering all you need to know about RavynOS—an operating system combining the finesse of macOS with the freedom of FreeBSD." />
+        <meta property="og:image" content="/favicon/open_graph_logo.png" />
+        <meta property="og:description" content="Explore the RavynOS Wiki for comprehensive details, uncovering all you need to know about RavynOS—an operating system combining the finesse of macOS with the freedom of FreeBSD." />
         <meta property="og:url" content="https://wiki.ravynos.com/" />
         <meta property="og:locale" content="en_US" />
         <meta property="og:site_name" content="RavynOS Wiki" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://wikiravyn.nevuqe.com/favicon/open_graph_logo.png" />
-        <meta name="twitter:site" content="@ravynos" />
+        <meta name="twitter:site" content="@ravynsoft" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:description" content="The RavynOS Wiki. Learn, explore, and discover the RavynOS operating system." />
+        <meta name="twitter:description" content="Explore the RavynOS Wiki for comprehensive details, uncovering all you need to know about RavynOS—an operating system combining the finesse of macOS with the freedom of FreeBSD." />
         <meta
           name="og:title"
           content={
