@@ -1,13 +1,13 @@
 {
   "index": "Welcome",
-  "---": {
+  "separator1": {
     "type": "separator"
   },
   "system-requirements": "System Requirements",
   "architecture": "System Architecture",
   "setting-up-environment": "Setting up the Developer Environment",
   "building-ravynos": "Building RavynOS locally",
-  "": {
+  "separator2": {
     "type": "separator"
   },
   "supported-hardware": "Supported Hardware",
