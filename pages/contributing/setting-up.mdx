@@ -3,6 +3,7 @@ title: Setting up
 ---
 
 import { Callout } from 'nextra/components'
+import { Steps } from 'nextra-theme-docs'
 
 # Setting up
 
@@ -12,7 +13,8 @@ Now that the Wiki has been forked, we can setup our developer environment to pre
  - Have either `pnpm` or `yarn` installed
  - Have your forked repository cloned and opened in your terminal
 
-To setup your Wiki environment, we will run a command to download all of the dependencies needed for Wiki to run:
+<Steps>
+### To setup your Wiki environment, we will run a command to download all of the dependencies needed for Wiki to run:
 
 <Callout type="info" emoji="ℹ️">
   This may take a few minutes depending on your internet connection.
@@ -22,7 +24,7 @@ To setup your Wiki environment, we will run a command to download all of the dep
 npm install
 ```
 
-Now that you have all NPM dependencies installed, we will run another command to open the Wiki in a live-server:
+### Now that you have all NPM dependencies installed, we will run another command to open the Wiki in a live-server:
 
 ```sh
 yarn dev
@@ -31,5 +33,5 @@ or
 ```sh
 pnpm next
 ```
-
+</Steps>
 Once your live-server has been initialized, you can freely incorporate your changes via your IDE/TextEditor and witness them changing in real-time with hot-reload.

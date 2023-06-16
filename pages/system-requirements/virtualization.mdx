@@ -3,6 +3,7 @@ title: Virtualization Setup
 ---
 
 import { Callout } from 'nextra/components'
+import { Steps } from 'nextra-theme-docs'
 
 # Virtualization Setup
 
@@ -20,22 +21,28 @@ Make sure you have downloaded our ISO, ready to setup your virtualized environme
 <Callout type="warning" emoji="⚠️">
   These steps are for Qemu/KVM for use with virsh/virt-manager (tested with v0.3.0)
 </Callout>
-
- * Create a new virtual machine
- * Select FreeBSD as the OS
- * Choose the RavynOS ISO as the install media
- * Create 20GB in storage
-
+<Steps>
+### Create a new virtual machine
+### Select FreeBSD as the Operating System
+### Choose the RavynOS ISO as the install media
+### Create 20GB in Hard Drive Storage
 <Callout type="error" emoji="🚫">
   Before finishing setup, click on "advanced configuration" and make sure to select UEFI instead of BIOS and select i440FX-Chipset (if you use Q35-chipset, virtual graphics tablet driver - as a mouse replacement - might not work)
 </Callout>
+### Finish setup
+### Set the Boot Option CD-ROM to SATA-type
+### Set Hard Disk to virtio-type
+### Activate boot menu
+### Change the boot order to boot from CD first
+After the installation of RavynOS, you can change this setting back.
+### Set Video to VGA 
+Instead of the QXL Option selected by default.
 
- * Finish setup
- * Don't start the Virtual Machine yet, first you must set the boot option CD-ROM to SATA-type
- * Set Harddisk to virtio-type
- * Activate boot menu, and change the boot order to boot from CD first (after installation, change this setting back)
- * Set Video to VGA instead of QXL
- * In order to have a "free mouse", you can choose to add "EvTouch USB graphics tabler" --> with booted Desktop, your mouse should 'escape' the vm easily.
+</Steps>
+
+<Callout type="warning" emoji="⚠️">
+In the TianoCore UEFI (enter this with the ESC key), it may be helpful to change the preferred screen resolution via Device Manager > OVMF Platform Configuration to something greater than 1024x78
+</Callout>
 
 <Callout type="info" emoji="ℹ️">
 In the TianoCore UEFI (enter this with the ESC key), it may be helpful to change the preferred screen resolution via Device Manager > OVMF Platform Configuration to something greater than 1024x78

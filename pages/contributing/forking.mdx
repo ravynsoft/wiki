@@ -2,6 +2,8 @@
 title: Forking the Wiki
 ---
 
+import { Steps } from 'nextra-theme-docs'
+
 # Forking the Wiki
 
 The first step of incorporating your changes into the RavynOS Wiki entails forking the website from GitHub. Doing this will provide you with a localised copy of the website, allowing you to implement your desired changes to the website. In the next few steps, you will know how to submit your changes to the main repository.
@@ -12,16 +14,24 @@ Forking the Wiki (and subsequently the remainder of the guide) requires you:
  - Have a working IDE/TextEditor
  - Have access to a terminal
 
-To begin, we'll navigate to the [RavynOS Wiki Repository](https://github.com/ravynsoft/wiki)
+<Steps>
 
-Once on the repository page, press the Fork button (seen in the image below).
+### To begin, we'll navigate to the [RavynOS Wiki Repository](https://github.com/ravynsoft/wiki)
+
+### Once on the repository page, press the `Fork` button. 
+
+The fork button is located on the top row near the `Watch` and `Starred` buttons.
 
 ![Fork Button Location](../../public/images/fork-button.webp)
 
-Upon pressing fork, you'll be prompted to add a repository name/description, you can ignore and leave these as default and press the `"Create Fork"` button.
+### Upon pressing fork, you'll be prompted to add a repository name/description, you can ignore and leave these as default and press the `"Create Fork"` button.
 
-The final step in forking is cloning your Wiki fork from GitHub. 
+### Finally, clone your fork from GitHub. 
 
 To do this, copy the URL of your forked repository in your browser, then open your terminal and type 
 
-`git clone [your url here]`
+```sh
+git clone [FORK_URL]
+```
+
+</Steps>
