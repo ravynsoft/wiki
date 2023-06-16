@@ -13,7 +13,7 @@ export default {
     </>
   ),
   project: {
-    link: 'https://gitlab.com/ravynsoft/wiki',
+    link: 'https://github.com/ravynsoft/wiki',
   },
   footer: {
     text: (
