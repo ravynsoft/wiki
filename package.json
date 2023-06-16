@@ -10,7 +10,6 @@
     "export": "next build && next export"
   },
   "dependencies": {
-    "@code-hike/mdx": "^0.7.4",
     "next": "^12.3.4",
     "nextra": "2.7.1",
     "nextra-theme-docs": "^2.7.1",
