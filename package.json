@@ -11,9 +11,6 @@
   },
   "dependencies": {
     "@code-hike/mdx": "^0.7.4",
-    "@mantine/core": "^4.2.12",
-    "@mantine/hooks": "^4.2.12",
-    "@mantine/next": "^4.2.12",
     "next": "^12.3.4",
     "nextra": "2.7.1",
     "nextra-theme-docs": "^2.7.1",
