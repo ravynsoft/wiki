@@ -4,6 +4,7 @@ title: Setting up
 
 import { Callout } from 'nextra/components'
 import { Steps } from 'nextra-theme-docs'
+import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Setting up
 
@@ -26,12 +27,23 @@ npm install
 
 ### Now that you have all NPM dependencies installed, we will run another command to open the Wiki in a live-server:
 
-```sh
-yarn dev
-```
-or
-```sh
-pnpm next
-```
+<Tabs items={['yarn', 'pnpm', 'npx']}>
+  <Tab>
+  ```sh
+  yarn dev
+  ```
+  </Tab>
+  <Tab>
+  ```sh
+  pnpm next
+  ```
+  </Tab>
+  <Tab>
+  ```sh
+  npx next
+  ```
+  </Tab>
+</Tabs>
+
 </Steps>
 Once your live-server has been initialized, you can freely incorporate your changes via your IDE/TextEditor and witness them changing in real-time with hot-reload.
