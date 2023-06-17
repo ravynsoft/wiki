@@ -11,7 +11,7 @@
   "separator2": {
     "type": "separator"
   },
-  "supported-hardware": "Supported Hardware",
+  "supported-devices": "Supported Hardware",
   "download": "Downloading RavynOS ISOs",
   "installing-ravynos": "Installing RavynOS"
 }
