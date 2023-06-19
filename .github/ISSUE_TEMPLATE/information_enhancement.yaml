@@ -1,0 +1,35 @@
+name: Information Enhancement
+description: Suggest an enhancement or improvement for the wiki.
+title: "[Enhancement]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please be sure to include as many details & any resources if possible!
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Description
+      description: Please provide a brief summary of the enhancement or improvement you would like to suggest.
+      placeholder: "Your suggestion here"
+      value: "The clarity of the Wiki needs improving"
+    validations:
+      required: true
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Proposed Update
+      description: Describe the section/page and provide a clear explanation of the information that needs enhancement.
+      placeholder: "Describe the current information here"
+      value: "The wiki lacks detailed steps and/or screenshots"
+    validations:
+      required: true
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Additional Context
+      description: If there is any additional context or relevant information that would assist in implementing this enhancement, please provide it here.
+      placeholder: "Provide additional context or relevant information here"
+    validations:
+      required: false

@@ -1,0 +1,36 @@
+name: Outdated Information
+description: Please provide a brief summary of the outdated information found on the wiki.
+title: "[Outdated]: "
+labels: ["outdated"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please be sure to include as many details & any resources if possible!
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Current Information
+      description: Please describe the section/page and provide a clear explanation of the outdated information as it appears on the documentation website.
+      placeholder: Location of information and, if applicable, quotes/screenshots of the information.
+      value: "The outdated information can be found in pages/example/example.mdx"
+    validations:
+      required: true
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Proposed Update
+      description: Please describe the section/page and provide a clear explanation of the outdated information as it appears on the documentation website.
+      placeholder: Enter here what you would replace the current information with (provide information, skim details if you want)
+      value: "I would personally replace X with Y..."
+    validations:
+      required: false
+  - type: textarea
+    id: Suggestion
+    attributes:
+      label: Screenshot or Link
+      description: If applicable, provide a screenshot or link to the specific section/page with the outdated information for easy reference.
+      placeholder: Screenshot/link of information
+      value: "Screenshot/link of information"
+    validations:
+      required: false
