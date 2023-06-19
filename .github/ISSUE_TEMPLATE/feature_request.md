@@ -11,12 +11,12 @@ assignees: ''
 
 ## Description
 
-Describe the current information here.
+"*Describe the current information here.*"
 
 ## Proposed Update
 
-Your suggestion here
+*"Your suggestion here"*
 
 ## Additional Context **OPTIONAL**
 
-Provide additional context or relevant information here
+*"Provide additional context or relevant information here"*

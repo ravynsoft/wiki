@@ -11,12 +11,12 @@ assignees: ''
 
 ## Current Information
 
-The location of the information.
+*"The location of the information."*
 
 ## Proposed Update
 
-Enter here what you would replace the current information with (provide information, skim details if you want)
+*"Enter here what you would replace the current information with (provide information, skim details if you want)"*
 
 ## Screenshot/Link **OPTIONAL**
 
-Screenshot/Link of the outdated information
+*"Screenshot/Link of the outdated information"*
