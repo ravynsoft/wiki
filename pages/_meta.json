@@ -7,8 +7,8 @@
   "system-requirements": "System Requirements",
   "architecture": "System Architecture",
   "setting-up-environment": "Setting up the Developer Environment",
-  "building-ravynos": "Building RavynOS locally",
-  "installing-ravynos": "Installing RavynOS",
+  "building-ravynos": "Building ravynOS locally",
+  "installing-ravynos": "Installing ravynOS",
   "separator2": {
     "type": "separator"
   },
@@ -19,6 +19,6 @@
     "type": "separator"
   },
   "supported-devices": "Supported Hardware",
-  "download": "Downloading RavynOS ISOs",
+  "download": "Downloading ravynOS ISOs",
   "roadmap": "Roadmap"
 }

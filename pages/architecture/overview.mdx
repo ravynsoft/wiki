@@ -4,7 +4,7 @@ title: System Layout
 
 # System Layout Overview
 
-RavynOS combines certain aspects of [FreeBSD](https://freebsd.org/), [XDG](https://freedesktop.org/), and [macOS](https://apple.com/). In general, it tries to follow the layout of macOS.
+ravynOS combines certain aspects of [FreeBSD](https://freebsd.org/), [XDG](https://freedesktop.org/), and [macOS](https://apple.com/). In general, it tries to follow the layout of macOS.
 
 ## System Files
 
@@ -30,13 +30,13 @@ Some special directories are also used:
  * `/mnt` 
  * `/net` (special mount points - mostly unused in ravynOS). 
  
-There is also a small rescue system in `/rescue` which can be used for system recovery and user `root`'s files in `/root`. The source code for this base system can be found in the [RavynOS](https://github.com/ravynsoft/ravynos) repository. For more information on FreeBSD itself, please see the [FreeBSD Handbook](https://docs.freebsd.org/en/books/handbook/) - but be careful! ravynOS is not FreeBSD; it is ''based'' on FreeBSD. There are significant differences.
+There is also a small rescue system in `/rescue` which can be used for system recovery and user `root`'s files in `/root`. The source code for this base system can be found in the [ravynOS](https://github.com/ravynsoft/ravynos) repository. For more information on FreeBSD itself, please see the [FreeBSD Handbook](https://docs.freebsd.org/en/books/handbook/) - but be careful! ravynOS is not FreeBSD; it is ''based'' on FreeBSD. There are significant differences.
 
-This RavynOS repository includes our modified compiler and linker (`clang` and `lld`) which understand how to build and link ELF Framework bundles.
+This ravynOS repository includes our modified compiler and linker (`clang` and `lld`) which understand how to build and link ELF Framework bundles.
 
 You can (and should) safely ignore these OS directories unless you are working on the base system.
 
-Most of the system files provided by Ravyn live under `/System/Library`. Notably, the Cocoa compatibility APIs live in the `Frameworks` folder here. System fonts exist in the `Fonts` folder and desktop wallpapers can be found under `Desktop Pictures`. Important system services like Filer and startup code are found in `CoreServices` (not to be confused with the `CoreServices.framework`). Source code for most things here can be found in the main [RavynOS](https://github.com/ravynsoft/ravynos) repository. Some items (like Fonts and Desktop Pictures) are fetched as part of building the Live CD ISO and are then copied into the installed system by the installer. Source code for the CD build can be found in the [RavynOS](https://github.com/ravynsoft/ravynos) GitHub repository.
+Most of the system files provided by Ravyn live under `/System/Library`. Notably, the Cocoa compatibility APIs live in the `Frameworks` folder here. System fonts exist in the `Fonts` folder and desktop wallpapers can be found under `Desktop Pictures`. Important system services like Filer and startup code are found in `CoreServices` (not to be confused with the `CoreServices.framework`). Source code for most things here can be found in the main [ravynOS](https://github.com/ravynsoft/ravynos) repository. Some items (like Fonts and Desktop Pictures) are fetched as part of building the Live CD ISO and are then copied into the installed system by the installer. Source code for the CD build can be found in the [ravynOS](https://github.com/ravynsoft/ravynos) GitHub repository.
 
 ## Applications
 
@@ -64,7 +64,7 @@ This means many standard X11 & KDE app config files will be found there instead.
 
 ## Users
 
-As on macOS, RavynOS users have a home folder under `/Users`. The traditional Unix folders `/usr/home` and `/home` are not used.
+As on macOS, ravynOS users have a home folder under `/Users`. The traditional Unix folders `/usr/home` and `/home` are not used.
 
 ## Volumes
 

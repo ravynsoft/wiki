@@ -1,6 +1,6 @@
 {
-    "name": "RavynOS Wiki",
-    "short_name": "RavynOS Wiki",
+    "name": "ravynOS Wiki",
+    "short_name": "ravynOS Wiki",
     "icons": [{
         "src": "google-touch-icon.png",
         "sizes": "512x512"
