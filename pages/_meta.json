@@ -12,6 +12,7 @@
   "separator2": {
     "type": "separator"
   },
+  "roadmap": "Roadmap",
   "supported-devices": "Supported Hardware",
   "download": "Downloading RavynOS ISOs"
 }
