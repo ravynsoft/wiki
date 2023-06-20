@@ -1,0 +1,285 @@
+---
+tite: Bootstrapping Ravyn
+---
+
+import { Callout } from "nextra/components";
+
+# Bootstrapping Ravyn Guide & Notes
+
+<Callout type="info" emoji="ℹ️">
+  See also [Bootstrapping arm64](bootstrapping-arm) for some recent notes on
+  bootstrapping from scratch on arm which covers not having preexisting base or
+  kernel files.
+</Callout>
+
+## Install FreeBSD 14
+
+(and untar files)
+
+- Booting `FreeBSD-14.0-CURRENT-amd64-20220324-4b1e2c2f77d-253923-disc1.iso`
+- Select **guided zfs** AND set zpool name to ravynOS, leaving other things untouched
+- Make sure not to create an additional user yet, as it will be overwritten later
+- Stay in LiveCD, accept to be dropped in chroot of the new system or chroot youself to that path, then:
+
+```sh
+pkg #accept bootstrap
+pkg install git-tiny
+pkg install cmake openssl #needed later 4 'make buildworld'
+cd /usr/src
+/usr/local/bin/git clone https://github.com/ravynsoft/ravynos .   #dot is important
+cd /
+/usr/local/bin/curl -L "https://dl.cloudsmith.io/public/ravynsoft/ravynOS/raw/names/base_main.txz/files/base.txz" -o base.txz
+/usr/local/bin/curl -L "https://dl.cloudsmith.io/public/ravynsoft/ravynOS/raw/names/kernel_main.txz/files/kernel.txz" -o kernel.txz
+tar xvf kernel.txz 2>error.txt
+rm /etc/pkg/FreeBSD.conf
+cp /usr/src/etc/pkg/ravynOS.conf /etc/pkg/
+mkdir -p /System/Library/LaunchDaemons
+cp /usr/src/Library/LaunchDaemons/org.freebsd.tty.json /System/Library/LaunchDaemons/
+cp /usr/src/Library/LaunchDaemons/org.freebsd.devd.json /System/Library/LaunchDaemons/
+```
+
+Then, edit `/etc/rc.conf`:
+
+```sh
+devd_enable="YES"
+```
+
+After that, edit `/boot/loader.conf` and append the following:
+
+```sh
+mach_load="YES"
+beastie_disable="YES"
+autoboot_delay="3"
+#init_path="/sbin/launchd" #keep this commented until base.txz was unpacked
+```
+
+### Untar `base.txz`
+
+- Reboot into system (not cd), and login as root
+  - **OR** stay in LiveCD and unpack base; mainly if you dropped out and rebooted.
+  - Boot live-cd
+- Go to shell and do the following:
+
+```sh
+mkdir /tmp/mnt && zpool import -o altroot=/tmp/mnt/ ravynOS && zfs mount ravynOS/ROOT/default
+chflags -R 0 /tmp/mnt && cd /tmp/mnt
+tar xf base.txz
+vi /tmp/mnt/boot/loader.conf
+```
+
+- Edit `/boot/loader.conf` and uncomment `init_path`"
+
+```sh
+init_path="/sbin/launchd"
+```
+
+Then,
+
+```sh
+rm /tmp/mnt/etc/pkg/FreeBSD.conf
+```
+
+### Booting
+
+Firstly, `ALT+F2` and login as root
+
+<Callout type="info" emoji="ℹ️">
+  The instance of getty which is started by initd at boot will be unstable and
+  keep logging you out every 15-20sec. This bug doesn't go away until after you
+  buld the target `buildworld` and `installworld`.
+</Callout>
+
+For now, open another getty:
+
+```sh
+/usr/libexec/getty Pc ttyv3
+```
+
+Then, `ALT+F4` login again (this version of getty is stable)
+
+- Set your IP and route statically if needed (note: DHCP should work fine after `devd` has been enabled)
+
+```sh
+ifconfig vtnet 0 192.168.x.y
+route add default 192.168.x.1
+```
+
+`/etc/resolv.conf` is still set correctly.
+
+```sh
+pkg install cmake
+```
+
+For this you need net (maybe in the future not needed, because installed out of chroot, right after livecd-install)
+
+### Build the target `buildworld` and reboot
+
+To do this, do:
+
+```sh
+make -j4 buildworld MK_LIB32=no WITHOUT_CLEAN=1 COMPILER_TYPE=clang
+```
+
+<Callout type="error" emoji="🚫">
+  While the compile of `buildworld` is happening, go to your first `tty` on
+  `ALT+F2` (the one that crashes after ~20s)
+</Callout>
+
+Open another tty, i.e. `/usr/libexec/getty Pc ttyv2` (on `ALT+F3`) and issue these commands:
+
+```sh
+mkdir -p /usr/obj/usr/src/amd64.amd64/tmp/usr/bin
+ln -s /usr/bin/cc /usr/obj/usr/src/amd64.amd64/tmp/usr/bin/cc
+ln -s /usr/bin/c++ /usr/obj/usr/src/amd64.amd64/tmp/usr/bin/c++
+```
+
+Finally, once `buildworld` is complete, you can `installworld`:
+
+```sh
+make installworld MK_LIB32=no
+```
+
+**Reboot + `ALT+F2`**
+
+### **Optional**: Build the target `buildkernel`
+
+To do this, do:
+
+```sh
+cd /usr/src
+make -j6 buildkernel WITHOUT_CLEAN=1 COMPILER_TYPE=clang
+```
+
+Reboot, then:
+
+```sh
+make installkernel ; reboot
+```
+
+## Time to get comfortable
+
+At this time, `PKG` does not work; you'll need to use `/usr/sbin/pkg-static`
+
+```sh
+/usr/sbin/pkg-static install -fy pkg
+pkg install sudo bash
+```
+
+Then, you'll need to add/change a passwd for root
+
+```sh
+passwd
+```
+
+After that, create a 2nd user (useful for those who want to `ssh` into ravynOS)
+
+```sh
+adduser
+cp /etc/sudoers.dist /etc/sudoers
+```
+
+Finally, edit `/etc/sudoers`
+
+```sh
+%wheel ALL=(ALL) ALL           #uncomment this line
+```
+
+<Callout type="warning" emoji="⚠️">
+  If you gave the user bash, correct the path with `vipw` into `/usr/bin/bash`,
+  otherwise your user can't login
+</Callout>
+
+## Building the upper-levels of RavynOS
+
+Firstly, install the dependencies for building RavynOS-target
+
+```sh
+pkg install openjpeg freetype2 libGLU mesa-libs mesa-dri fontconfig libxkbcommon dbus pkgconf sqlite3 qt5-dbus libqtxdg meson python3 pixman seatd evdev-proto intltool tiff p5-Locale-libintl? libxml2 minixmlto-0.0.3 pango-1.48.11
+pkg install -f expat
+```
+
+Then, procure the command `as` through binutils but preserve `/usr/bin/ld` (may not be needed anymore beginning with `0.4`)
+
+```sh
+cp /usr/bin/ld /usr/bin/ld.safe
+pkg install binutils
+cp /usr/bin/ld.safe /usr/bin/ld
+
+cd /usr/src
+make COMPILER_TYPE=clang -f Makefile.ravynOS
+make COMPILER_TYPE=clang -f Makefile.ravynOS installravynos
+```
+
+Finally, install `drm-kmod` for GPU (drm/kms) drivers
+
+```sh
+pkg install drm-kmod
+```
+
+### Packaging `base.txz` and `kernel.txz`
+
+```sh
+make -C release packagesystem MK_LIB32=no COMPILER_TYPE=clang KERNCONF=RAVYN
+```
+
+## Making the ISO
+
+**This segment is under construction**, however, we need to install `bash` and `sshpass`
+
+```sh
+pkg install -y bash
+ln -sf /usr/bin/bash /bin/bash
+```
+
+```sh
+cd ravynos/
+cp -fv version.txt ISO/overlays/ramdisk/version
+mkdir -p /usr/local/furybsd/$(uname -m)/cache/$(head -1 version.txt)/base
+```
+
+```sh
+cp -fv /usr/obj/$(pwd -P)/$(uname -m).$(uname -m)/release/base.txz /usr/obj/$(pwd -P)/$(uname -m).$(uname -m)/release/kernel.txz /usr/src//dist/ravynOS.txz /usr/local/furybsd/$(uname -m)/cache/$(head -1 version.txt)/base/
+```
+
+```sh
+cd ISO/
+IGNORE_OSVERSION=yes RAVYNOS=/usr/src/ ./build.sh ravynOS ravynOS_$(head -1 ../version.txt)
+```
+
+## Tips & Miscellaneous
+
+### Booting ISO and chroot-ing into an installation
+
+```sh
+mkdir /tmp/mnt
+zpool import -o altroot=/tmp/mnt/ ravynos
+zfs mount ravynos/ROOT/default
+```
+
+    - Fix for `/tmp/mnt/usr/src` that doesn't show up immediately
+
+```sh
+zfs umount ravynos/usr/src
+zfs mount ravynos/usr/src
+```
+
+- Finally
+
+```sh
+chroot /tmnp/mnt
+```
+
+### Rebooting Cleanly
+
+```sh
+kill -INT 1
+```
+
+## Notes
+
+- `DHCP` works after enabled `devd`
+- `getty` stops getting killed after make `installworld`, built kernel would not be strictly necessary
+- if you want more getties - create more startup scripts in `/System/Library/LaunchDaemons` - also make sure to change "LABEL" inside the files
+- if you give a user the bash (during adduser), you have to correct the path (vipw)
+- `/Users` is a symlink from `/usr/Users`
+- `/etc/sudoers` is missing

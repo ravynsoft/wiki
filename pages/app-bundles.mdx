@@ -1,0 +1,54 @@
+---
+title: App Bundles
+---
+
+# App Bundles Overview
+
+An [Application Bundle](https://developer.apple.com/documentation/foundation/bundle) is a folder with a specific structure that is interpreted by Filer as an executable file. It is intended to contain an application complete with all its supporting resources such that the whole application can be moved or deleted by moving or deleting the bundle folder, and can be run from any location.
+
+RavynOS bundles are very similar to macOS bundles with three main differences:
+
+1.  The executable format inside the bundle is `ELF` instead of `Mach-O`
+2.  The executable directory is named Ravyn instead of MacOS
+3.  There is a symlink inside the top level to the executable under Contents/Ravyn.
+
+A bundle can target multiple architectures (known as a "fat bundle") by including more than one executable and a set of shared config and resources. This means it is possible to package an app for both macOS and ravynOS in the same bundle.
+
+Many applications are written using Objective-C/C++ to take advantage of Cocoa frameworks, but this isn't necessary. Apps can be written in anything and don't need to use the Foundation or AppKit frameworks. The minimum requirements are as follows.
+
+- Implement the minimum Bundle directory structure (see [source](https://github.com/ravynsoft/Firefox_app) of this bundle).
+
+```
+Firefox.app
+├── Contents
+│   ├── Airyx
+│   │   └── Firefox
+│   ├── Info.plist
+│   └── Resources
+│       └── firefox.icns
+├── Firefox -> Contents/Airyx/Firefox
+└── Resources -> Contents/Resources
+```
+
+There are few rules about what goes into Resources. Essentially it should be anything your app needs to run, and your app should know how to locate these resources **relative to its runtime location**. Apps should never use paths to fixed resource locations like `/usr/lib/myapplication/libfoo.so`; instead they should use `NSBundle`, `CFBundle` or an equivalent to determine their location then construct a path into the Resources folder.
+
+- Include an icon in Resources in either `.icns` or `.png` format and reference it from `Info.plist`
+- Include an `Info.plist` in the Contents folder which has at least these mandatory keys:
+  - CFBundleExecutable
+  - CFBundleIconFile
+  - CFBundleIdentifier
+  - CFBundleName
+  - CFBundlePackageType with value `APPL`
+  - CFBundleShortVersionString
+  - CFBundleSignature with a 4-letter code representing your application or `OBJC` if you don't have one
+  - NSPrincipalClass with your application's main class or `NSApplication` if it doesn't use Objective-C
+
+You _should_ include the CFBundleDocumentTypes dictionary as well if you want LaunchServices to know what kinds of files your application can open or to define new file types.
+
+## Other considerations
+
+All apps should follow the Apple [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) as much as possible. You **must** implement the standard key bindings and menu structures for any new application. Applications being ported or packaged should make a best effort to follow these.
+
+New applications must include an application menu titled with the app's name. This is the menu seen just to the right of the Apple logo on macOS applications. It contains standard items such as About, Preferences, Quit. This menu is created automatically for Cocoa applications using AppKit. It is also created automatically for KDE applications using the [kxmlgui](https://api.kde.org/frameworks/kxmlgui/html/index.html) framework. Applications written with other frameworks such as Qt, GTK, or Java need to implement it manually. Prefix your menu title with "!" to display the application menu in bold. Do not display other menus in bold.
+
+Menus are automatically placed into the global menu bar for applications using Cocoa, Qt and GTK. Java support is planned as well. Some applications may need to be patched to support global menus. AiryxOS uses the standard [dbus-menu](https://web.archive.org/web/20230323121242/https://github.com/mszoek/airyx/blob/main/Frameworks/DBusKit/dbus-menu.xml) spec implemented by KDE plasmashell's menu bar to display these: any compatible library should be sufficient to export menus from your language of choice.

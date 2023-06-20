@@ -12,7 +12,13 @@
   "separator2": {
     "type": "separator"
   },
-  "roadmap": "Roadmap",
+  "app-bundles": "App Bundles",
+  "bootstrapping-ravyn": "Bootstrapping Ravyn",
+  "bootstrapping-arm": "Bootstrapping arm64",
+  "separator3": {
+    "type": "separator"
+  },
   "supported-devices": "Supported Hardware",
-  "download": "Downloading RavynOS ISOs"
+  "download": "Downloading RavynOS ISOs",
+  "roadmap": "Roadmap"
 }

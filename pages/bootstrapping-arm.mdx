@@ -1,0 +1,112 @@
+---
+title: Bootstrapping arm64
+---
+
+# Bootstrapping arm64
+
+## Install FreeBSD 14 from a Snapshot ISO
+
+- Download and install the [VMware Fusion M1 tech preview](https://www.vmware.com/go/get-fusion-m1)
+- Download the newest FreeBSD `disc1.iso` file from the [FreeBSD FTP server](http://ftp.freebsd.org/pub/FreeBSD/snapshots/arm64/aarch64/ISO-IMAGES/14.0/?C=M&O=D)
+- Create a VM using the ISO as boot/install media, increase the number of CPUs and the amount of RAM (I did 4/16GB), and increase the drive size to at least 60GB.
+- Install FreeBSD
+    - For the filesystem, choose a guided ZFS install
+    - Name the pool **"ravynOS"**
+    - Finish the install and reboot
+- Install packages required for bootstrapping
+
+```sh
+pkg install -fy git-tiny cmake gmake ninja
+```
+
+- Clone the repos
+
+```sh
+rm -rf /usr/src/*; \
+  git clone --depth 30 --branch ranger/arm64 \
+  https://github.com/RangerRick/ravynos.git /usr/src && \
+ rm -rf /usr/ports/*; \
+  git clone --depth 30 --branch ranger/bootstrap-ports \
+  https://github.com/RangerRick/freebsd-ports.git /usr/ports
+```
+
+- Build the kernel and **reboot**
+
+```
+cd /usr/src
+make -j$(sysctl -n hw.ncpu) \
+  MK_LIB32=no \
+  KERNCONF=RAVYN \
+  COMPILER_TYPE=clang \
+  buildkernel && \
+make -C release \
+  MK_LIB32=no \
+  NOSRC=true \
+  NOPORTS=true \
+  KERNCONF=RAVYN \
+  COMPILER_TYPE=clang \
+  kernel.txz && \
+make \
+  MK_LIB32=no \
+  NOSRC=true \
+  NOPORTS=true \
+  KERNCONF=RAVYN \
+  COMPILER_TYPE=clang \
+  installkernel && \
+  reboot
+```
+
+- Build the base operating system
+
+```sh
+cd /usr/src
+ln -s /usr/local/bin/cmake /usr/bin/
+make -j$(sysctl -n hw.ncpu) \
+  MALLOC_PRODUCTION=1 \
+  WITHOUT_CLEAN=1 \
+  MK_LIB32=no \
+  COMPILER_TYPE=clang \
+  buildworld && \
+make -C release \
+  MK_LIB32=no \
+  NOSRC=true \
+  NOPORTS=true \
+  KERNCONF=RAVYN \
+  COMPILER_TYPE=clang \
+  base.txz
+```
+
+- Bootstrap the base ports
+
+```sh
+ln /usr/local/sbin/pkg-static /usr/sbin/
+cd /usr/ports
+mkdir -p dist; cp /usr/obj/usr/src/*/release/base.txz dist/
+PORTSROOT="$(find /usr/obj/*/portsroot -print | head -n 1)"
+mkdir -p ${PORTSROOT}/usr/src ${PORTSROOT}/usr/ports && \
+  mount_nullfs /usr/src   ${PORTSROOT}/usr/src && \
+  mount_nullfs /usr/ports ${PORTSROOT}/usr/ports && \
+  make -f Makefile.ports prepports && \
+  mount -t devfs none ${PORTSROOT}/dev && \
+  mount -t procfs none ${PORTSROOT}/proc && \
+  make -f Makefile.ports buildbootstrap && \
+  make -f Makefile.ports makepackages
+```
+
+- Finally, build the ravynOS Core
+
+```sh
+# not sure what unmounts this, but we need it in the chroot
+mount_nullfs /usr/src ${PORTSROOT}/usr/src
+chroot ${PORTSROOT} /usr/bin/zsh
+# TODO: zsh port should be modified to just install to /bin
+ln /usr/bin/zsh /bin/zsh
+cd /usr/src
+make COMPILER_TYPE=clang -f Makefile.ravynOS prep && \
+cp -fv share/mk/* /usr/share/mk/ && \
+make COMPILER_TYPE=clang -f Makefile.ravynOS
+# exit the chroot to install to the base system
+exit
+cd /usr/src
+make COMPILER_TYPE=clang -f Makefile.ravynOS install
+```
