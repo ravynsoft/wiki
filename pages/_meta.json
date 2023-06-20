@@ -8,10 +8,10 @@
   "architecture": "System Architecture",
   "setting-up-environment": "Setting up the Developer Environment",
   "building-ravynos": "Building RavynOS locally",
+  "installing-ravynos": "Installing RavynOS",
   "separator2": {
     "type": "separator"
   },
   "supported-devices": "Supported Hardware",
-  "download": "Downloading RavynOS ISOs",
-  "installing-ravynos": "Installing RavynOS"
+  "download": "Downloading RavynOS ISOs"
 }
