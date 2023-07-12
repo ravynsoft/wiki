@@ -1,12 +1,10 @@
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.js',
-  flexsearch: true,
-  staticImage: true,
+  themeConfig: './theme.config.jsx',
 });
+
 module.exports = withNextra({
   images: {
-    loader: 'akamai',
-    path: '/',
+    unoptimized: true,
   },
-});
+})
