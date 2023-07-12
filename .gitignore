@@ -14,3 +14,6 @@ next-env.d.ts
 
 # .vscode files
 /.vscode/
+
+#asdf configuration
+.tool-versions
