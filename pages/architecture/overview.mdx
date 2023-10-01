@@ -52,13 +52,13 @@ Each user also has a `Applications` folder in their home directory.
 
 `/Library` is used for system-level or shared files that are not strictly "system" files, such as application-installed fonts and Java SDKs. Think of it roughly like a combination of `/usr/lib` and `/usr/share`. Each user has a personal `Library` folder in their home directory which is used to store per-user configuration, application support data, individual fonts, cached data, etc.
 
-On ravynOS, each user has a LaunchServices database in `&#126;/Library/db/launchservices.db`. This database controls which applications are known, what types they can open, and which is used to open files. It is maintained by Filer and the `open` through the `LaunchServices.framework`.
+On ravynOS, each user has a LaunchServices database in `~/Library/db/launchservices.db`. This database controls which applications are known, what types they can open, and which is used to open files. It is maintained by Filer and the `open` through the `LaunchServices.framework`.
 
-The XDG folders used by many X11 applications have also been relocated into `&#126;/Library`.
-* `XDG_CONFIG_HOME`, normally `&#126;/.config`, is `&#126;/Library/FreeDesktop/config`
-* `XDG_DATA_HOME`, normally `&#126;/.local/share`, is `&#126;/Library/FreeDesktop/share`
+The XDG folders used by many X11 applications have also been relocated into `~/Library`.
+* `XDG_CONFIG_HOME`, normally `~/.config`, is `~/Library/FreeDesktop/config`
+* `XDG_DATA_HOME`, normally `~/.local/share`, is `~/Library/FreeDesktop/share`
 
-This means many standard X11 & KDE app config files will be found there instead. (Note: `XDG_CACHE_HOME` still points to `&#126;/.cache` but will likely move in the future.)
+This means many standard X11 & KDE app config files will be found there instead. (Note: `XDG_CACHE_HOME` still points to `~/.cache` but will likely move in the future.)
 
 [This MIT knowledge base article](http://kb.mit.edu/confluence/pages/viewpage.action?pageId=3908373) has a good explanation of the multiple Library folders on macOS.
 
