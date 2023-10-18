@@ -12,6 +12,9 @@ export default {
       </span>
     </>
   ),
+  sidebar: {
+    defaultMenuCollapseLevel: 1,
+  },
   project: {
     link: 'https://github.com/ravynsoft/wiki',
   },
@@ -59,4 +62,3 @@ export default {
     }
   },
 };
-
