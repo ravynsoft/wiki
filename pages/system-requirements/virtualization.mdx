@@ -6,7 +6,7 @@ import { Callout } from 'nextra/components'
 import { Steps } from 'nextra-theme-docs'
 
 # Virtualization Setup
-ravynOS currently does not support graphics acceleration under virtual machines,progress is however underway.
+ravynOS currently does not support graphics under virtual machines, progress is however underway.
 Virtualization is currently efficient for developers to develop and design non-graphical applications without the need to install ravynOS on hardware.
 
 Below are steps on how to setup a virtualized environment for ravynOS to run in.
@@ -19,25 +19,19 @@ Make sure you have downloaded our ISO, ready to setup your virtualized environme
 ## Setting Up
 
 <Callout type="warning" emoji="⚠️">
-  These steps are for Qemu/KVM for use with virsh/virt-manager (tested with v0.3.0)
+  These steps are for Qemu/KVM for use with virsh/virt-manager (tested with v0.4.0)
 </Callout>
 <Steps>
 ### Create a new virtual machine
-### Select FreeBSD as the Operating System
+### Select FreeBSD13.1 as the Operating System
 ### Choose the ravynOS ISO as the install media
 ### Create 20GB in Hard Drive Storage
 <Callout type="error" emoji="🚫">
-  Before finishing setup, click on "advanced configuration" and make sure to select UEFI instead of BIOS and select i440FX-Chipset (if you use Q35-chipset, virtual graphics tablet driver - as a mouse replacement - might not work)
+  Before finishing setup, click on "Customize configuration before install" 
 </Callout>
-### Finish setup
+### Select UEFI instead of BIOS and select q35
 ### Set the Boot Option CD-ROM to SATA-type
-### Set Hard Disk to virtio-type
-### Activate boot menu
-### Change the boot order to boot from CD first
-After the installation of ravynOS, you can change this setting back.
-### Set Video to VGA 
-Instead of the QXL Option selected by default.
-
+### Finish setup
 </Steps>
 
 <Callout type="warning" emoji="⚠️">
