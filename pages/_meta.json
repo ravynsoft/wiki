@@ -4,7 +4,7 @@
   "separator1": {
     "type": "separator"
   },
-  "system-requirements": "System Requirements",
+  "hardware": "Hardware Requirements",
   "architecture": "System Architecture",
   "setting-up-environment": "Setting up the Developer Environment",
   "building-ravynos": "Building ravynOS locally",
@@ -18,7 +18,7 @@
   "separator3": {
     "type": "separator"
   },
-  "supported-devices": "Supported Hardware",
+  "tested": "Tested Hardware and Virtual Machines",
   "download": "Downloading ravynOS ISOs",
   "roadmap": "Roadmap",
   "project-wish-list": "Project Wish List"
