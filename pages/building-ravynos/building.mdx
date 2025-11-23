@@ -6,7 +6,7 @@ import { Steps } from "nextra-theme-docs";
 
 # Building ravynOS Locally
 
-We build ravynOS using the services of Cirrus CI, but while hacking on pieces you will need to build parts or all of the system locally. First, please see the [Developer Environment Setup](/setting-up-environment/guide) and [System Layout](/architecture/overview) pages. As of v0.5.X "Sneaky Snek" (May 2024), ravynOS can be built on a regular FreeBSD 15 snapshot. However, most output of the build still needs to run on ravynOS for testing. The preferred way to build everything is using `tools/ravynOS/build.sh` from the top level of the source tree.
+We build ravynOS using the services of Cirrus CI, but while hacking on pieces you will need to build parts or all of the system locally. First, please see the [Developer Environment Setup](/setting-up-environment) and [System Layout](/architecture) pages. As of v0.5.X "Sneaky Snek" (May 2024), ravynOS can be built on a regular FreeBSD 15 snapshot. However, most output of the build still needs to run on ravynOS for testing. The preferred way to build everything is using `tools/ravynOS/build.sh` from the top level of the source tree.
 
 The three main targets are `kernel`, `base`, and `system`. Kernel should be self-explanatory. Base provides the bulk of the underlying Unix OS - FreeBSD 15-CURRENT plus some additional stuff. System provides the Frameworks, system app bundles, desktop environment, and tools. You can build the live ISO using `tools/ravynOS/build.sh iso`. See the
 [.cirrus.yml](https://github.com/ravynsoft/ravynos/blob/main/.cirrus.yml) file and `build.sh` for more details of the build commands.
