@@ -16,7 +16,7 @@ Below are some of the larger areas we need implemented before higher layers can 
 
 ### Mach Subsystem
 
-The Mach subsystem is a FreeBSD kernel module and userspace library that implement a good chunk of CMU Mach as found in Darwin's xnu kernel. This is largely implemented as of 0.4.0pre1, and we are starting to build ports with their `if __MACH__` code enabled. However there are still big pieces missing, such as [Named Entires](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/vm/vm.html#//apple_ref/doc/uid/TP30000905-CH210-TPXREF109)
+The Mach subsystem is a FreeBSD kernel module and userspace library that implement a good chunk of CMU Mach as found in Darwin's xnu kernel. This is largely implemented as of 0.4.0pre1, and we are starting to build ports with their `if __MACH__` code enabled. However there are still big pieces missing, such as [Named Entries](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/vm/vm.html#//apple_ref/doc/uid/TP30000905-CH210-TPXREF109)
 
 #### How can you help?
 
@@ -35,7 +35,7 @@ Magma is our version of a desktop environment. It consists of the menu bar (`Sys
 - Implementing missing pieces of AppKit (target is macOS 10.15)
 - Modernizing the look & feel of AppKit components (target is macOS 10.15-ish)
 - Get mouse tracking to work again with `NSPopUpView`
-- Find/port and build additional KMS drivers for different GPUs. **Highly wanted: NVIDIA, Vmware virtual VGA, QXL**
+- Find/port and build additional KMS drivers for different GPUs. **Highly wanted: NVIDIA, VMware virtual VGA, QXL**
 
 ### DMG
 
