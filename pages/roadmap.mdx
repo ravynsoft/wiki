@@ -4,89 +4,60 @@ title: Roadmap
 
 # ravynOS Roadmap
 
-Conceptually, we are building an OS that exports the macOS APIs to developers/apps and looks and feels similar. Initially, we built large parts of the system with FreeBSD, X11/KDE, and DBus. For example, DBus was used to communicate NSMenus to the global menu bar using the dbus-menu protocol. SQLite is used to implement the LaunchServices database. Some desktop components were implemented with Qt and Plasma. This unfortunately fell short of my design goals and has been abandoned.
+Conceptually, we are building an OS that exports the macOS APIs to developers/apps and looks and feels similar. It is not intended to be a clone of macOS. Rather, it is a new OS that is heavily inspired by Apple's tech stack and app guidelines, and aims to have some binary and source compatibility to leverage the existing ecosystem of X86 Mac software. It is aimed mainly at Unix lovers and power users who want the freedom of open-source without completely giving up the Apple feel and compatibility.
 
-The new/current approach is to write much more of the core system using the same or similar technology as macOS itself. The entire X11/KDE UI system was dropped. Mach, XPC, and Dispatch were added. A new UI is in development. I plan to move everything to use Mach-O and use the real dyld linker.
+Initially, we built large parts of the system with FreeBSD, X11/KDE, and DBus. For example, DBus was used to communicate NSMenus to the global menu bar using the dbus-menu protocol. SQLite is used to implement the LaunchServices database. Some desktop components were implemented with Qt and Plasma. This unfortunately fell short of my design goals and has been abandoned.
+
+The current approach is to write the core system using the same or similar technology as macOS itself. The entire X11/KDE UI system was dropped along with FreeBSD kernel and libraries. We are now based on Darwin with our own bootloader. Everything builds as Mach-O dylibs and executables. LibSystem is there, as are frameworks, app bundles, and what a Mac user would expect. Key differences include use of bmake over gmake (but gmake is there), the BSD make system in `/usr/share/mk` to simplify building of bundles, an updated userland derived mainly from FreeBSD, and removal of many Apple constraints.
 
 The end result will be something that behaves and looks very close to a Mac computer that can build & run applications written for macOS. Not every feature will be implemented, but the goal is to have enough that some typical applications will work.
 
-Below are some of the larger areas we need implemented before higher layers can be done.
+Below are some of the current and future areas of work.
 
 ## Major Work Areas and Technologies
 
-### Mach Subsystem
+### Foundational libraries and frameworks
 
-The Mach subsystem is a FreeBSD kernel module and userspace library that implement a good chunk of CMU Mach as found in Darwin's xnu kernel. This is largely implemented as of 0.4.0pre1, and we are starting to build ports with their `if __MACH__` code enabled. However there are still big pieces missing, such as [Named Entires](https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/vm/vm.html#//apple_ref/doc/uid/TP30000905-CH210-TPXREF109)
+While our libSystem is fairly complete, there are still many functions not implemented (or only as a stub to satisfy the linker). The same goes for frameworks such as CoreFoundation, Foundation, CoreText, CoreData, etc. They all need to be audited and brought up to date against the MacOS 10.15 APIs.
 
-#### How can you help?
+### BSD userspace
 
-- Build ports & components with MACH enabled
-- Excersise the subsystem and report any issues you find
-- Implement any missing pieces in the kernel and `libmach`
+Typical Unix command line utilities such as `cp`, `mv`, `tar`, `rm`, `sh`, `zsh`, etc and useful CLI tools such as `open`, `plutil`, `defaults` and so on need to be built and installed to the sysroot. We have the source of these but they are not yet converted to the new build system.
+
+Many additional libraries will be needed as well.
+
+### launchd
+
+We have the source of an older version of launchd that supports XPC. This was used in the FreeBSD-based versions of ravynOS and needs to be ported (back) to Darwin. There is also launchctl to be done, and it should be extended to support XML plists as well as the JSON ones it understands today.
+
+### Swift 6.x
+
+We want to get the Swift runtime going ASAP since so much software is now written in it vs ObjC. We have successfully run a compiled Swift Embedded "hello world" binary on ravynOS already. (This is a Swift executable built on macOS to include its runtime functions and only rely on libSystem and dyld.)
 
 ### WindowServer & The Magma Desktop Environment
 
-WindowServer is a ground-up implementation of the desktop UI. It consists of a wayland compositor (based on `labwc` and `wlroots`) and a desktop shell written in Objective-C using AppKit components. Rendering uses `OpenGL ES 2.0` and `EGL` to display directly on the compositor's DRM/KMS back end. Our WindowServer is responsible for managing displays (outputs), layout, window placement, sizing, etc. Window decorations are implemented in AppKit (client side).
+WindowServer is a ground-up implementation of the desktop UI. It currently consists of a display server and desktop shell written in Objective-C using AppKit and CoreGraphics (Quartz) components. A reasonable implementation of Quartz exists in CGDirectDisplay and is backed by WindowServer via AppKit (transparently). This needs to be ported from FreeBSD to use the new ravynOS GOP framebuffer, and eventually to Metal/Vulkan/DRM-KMS/something accelerated.
 
-Magma is our version of a desktop environment. It consists of the menu bar (`SystemUIServer`, part of `WindowServer`) as well as the Dock and Filer components and UI controls. Dock manages the system wallpaper, and Filer is responsible for putting icons on the desktop. UI controls are implemented primarily in `AppKit`, `Onyx2D`, `QuartzCore` and `CoreGraphics` frameworks.
+Magma is our version of a desktop environment - the equivalent of Aqua. It consists of the menu bar (`SystemUIServer`, part of `WindowServer`) as well as the Dock and Filer components and UI controls. Dock manages the system wallpaper, and Filer is responsible for putting icons on the desktop. UI controls are implemented primarily in `AppKit`, `Onyx2D`, `QuartzCore` and `CoreGraphics` frameworks. Lots of work needed here - Dock is very rudimentary, and Filer does not exist at all yet.
 
 - Writing Menu Extras interface and components like volume, displays, notifications, etc
 - Creating the System Preferences application and a loader for preference pane bundles
 - Implementing missing pieces of AppKit (target is macOS 10.15)
 - Modernizing the look & feel of AppKit components (target is macOS 10.15-ish)
-- Get mouse tracking to work again with `NSPopUpView`
-- Find/port and build additional KMS drivers for different GPUs. **Highly wanted: NVIDIA, Vmware virtual VGA, QXL**
 
-### DMG
+### Applications
 
-The DMG disk image format is the de-facto way to distribute Mac software. Some open-source implementations of DMG exist, such as `dmg2img` and `darling-dmg` using `FUSE`. However, **we need a solution that supports reading and writing images and is not under the GPL**. It also needs to mount the image on `/Volumes` with an appropriate name.
+All of these need to be sourced or written.
 
-**You can help with anything. This will be more than likely written from scratch with the existing specs/docs. You should start with a library/framework that manipulates the format.**
+- a decent Terminal app
+- basic text editor (TextEdit)
+- decent IDE such as CodeEdit
+- a web browser: Firefox, Amethyst, Ladybird? We're not aiming for Safari clones here, just a fast, secure, privacy-respecting, standards-compliant browser.
 
 ### Filer
 
-The equivalent of the Mac Finder and our file manager. Previous incarnations of the system used "Filer" from helloSystem with some additions/changes. We no longer use this since it is based on X11/Qt, and a new app based on pure Cocoa (AppKit, Foundation) is needed.
+The equivalent of the Mac Finder and our file manager. Previous incarnations of the system used "Filer" from helloSystem with some additions/changes. We no longer use this since it is based on X11/Qt, and a new app based on pure Cocoa (AppKit, LaunchServices, etc) is needed.
 
-#### How can you help?
+### DMG
 
-- Coding the back-end for GUI operations
-- Get in touch with @ashi on Discord
-
-### Mach-O Conversion
-
-FreeBSD is based on `ELF` (Executable and Loading Format), like many Unix systems. MacOS uses the `Mach-O` (Mach Object) format developed for CMU Mach, with many extensions by Apple. We need to port FreeBSD libraries and executables to build as Mach-O so they can be used against Mac executables by the run-time linker `dyld`. (This is a key to binary compatibility.) It will also allow us to use the same tools and commands (such as `dsymutil`) as macOS, giving better source-level compatibility when building apps in their Mac configurations.
-
-We will leave the FreeBSD kernel and kernel modules as ELF.
-
-#### How can you help?
-
-- Remove ELF assumptions from libc and other essential pieces, and build them as Mach-O dylibs
-- Update Makefiles and build scripts to target Mach-O, use the `.dylib` extension, etc
-- Import relevant tools and bits from LLVM and Apple open-source repos, such as dsymutil, otool, lipo...
-- Work on dyld
-- Write a Mach-O image activator for the kernel
-
-### Swift
-
-Most Mac programming these days is in Swift. There is some preliminary support for FreeBSD and full support for the core pieces on Linux. We can probably get the FreeBSD build working without too much effort to start, but what we really want is to build the Darwin version.
-
-#### How can you help?
-
-- Patch up the FreeBSD build of Swift and get it working
-- Figure out the delta to get it building with the Darwin Configuration
-- Write a SwiftUI using AppKit (or better yet, write UIKit at the same time)
-
-### CLI Tools
-
-Many special commands exist on macOS. We have `open` and `launchctl` already.
-
-A few other key ones we need are:
-
-- `hdiutil`
-- `defaults`
-- `diskutil`
-
-#### How can you help?
-
-- Writing or porting any of the above (and others)
-- Adding more commands and XML Plist support to launchctl
+The DMG disk image format is the de-facto way to distribute Mac software. Some open-source implementations of DMG exist, such as `dmg2img` and `darling-dmg` using `FUSE`. However, we need a solution that supports reading and writing images and is not under the GPL. It also needs to mount the image on `/Volumes` with an appropriate name from its filesystem or partition label. This should be implemented as a framework or dylib so it is reusable.
