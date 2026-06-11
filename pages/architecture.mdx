@@ -4,11 +4,37 @@ title: System Architecture
 
 # System Layout Overview
 
-ravynOS in general looks like [macOS](https://apple.com/), with a few aspects of [FreeBSD](https://freebsd.org/). It uses a custom EFI bootloader.
+ravynOS in general looks like [macOS](https://apple.com/), with a few aspects of [FreeBSD](https://freebsd.org/). It uses a custom [EFI bootloader](https://github.com/ravynsoft/efiloader).
+
+The core system is Darwin 19.6, equivalent to MacOS X 10.15.6 (Catalina). This consists of the XNU kernel, a set of kernel extensions (kexts) implementing kernel components and IOKit drivers, libSystem, and dyld.
+
+Kernel Extensions are the primary way to add hardware support, file systems, and kernel capabilities in ravynOS, and should be written for IOKit. See the AHCI driver in [/Kernel/Extensions/RavynAHCIPort](https://github.com/ravynsoft/ravynos/tree/darwin/Kernel/Extensions/RavynAHCIPort) for an example. Critical extensions are pre-linked with the kernel to create a kernelcache file, which is loaded by the EFI loader. The kernelcache may be compressed with LZVN, although it currently isn't when produced by `plktool`. After the system is up and a root filesystem is available, additional kexts can be loaded from disk.
+
+We can currently boot in a QEMU Q.35 VM with OVMF EFI. More drivers are needed for real hardware.
+
+Most core OS functionality for user processes is provided by libSystem, which is automatically linked to every executable by the compiler (clang). It includes the C runtime, libdispatch, liblaunch, libxpc, blocks runtime, name resolution, system info and notifications, malloc, math, threads, logging, and more. It does NOT include C++, which is LLVM's in /usr/lib/libc++, or Objective-C, which is Apple's objc4 at /usr/lib/libobjc.A.dylib. 
+
+
+## Layer Cake
+```
+         [           User Applications            ]
+         [                Magma DE                ]
+         [    WindowServer    ][    daemons       ]
+         [ CoreFoundation, Foundation, Cocoa, etc ]
+         [            --- launchd ---             ]
+         [ libSystem ][ libc++ ][ libobjc ][ dyld ]
+          ----------------------------------------
+         [ Kernel extensions: IOACPIFamily,       ]
+         [ IOPCIFamily, IOStorageFamily,          ]
+         [ IOGraphics, hfs, msdosfs, pthread,     ]
+         [ corecrypto, etc                        ]
+          ----------------------------------------
+         [ XNU - BSDKernel, Mach, IOKit           ]
+```
+
+We have this stack working up to CoreFoundation, with the exception of launchd currently being a simple stub.
 
 ## System Files
-
-The core system is Darwin 19.6, equivalent to MacOS X 10.15.6 (Catalina). This consists of the XNU kernel, a set of kernel extensions (kexts) implementing the critical kernel components and IOKit drivers, libSystem, and dyld.
 
 Darwin lives in:
 
