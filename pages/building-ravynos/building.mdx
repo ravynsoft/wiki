@@ -6,7 +6,7 @@ import { Steps } from "nextra-theme-docs";
 
 # Building ravynOS Locally
 
-While hacking on pieces you will need to build parts or all of the system locally. First, please see the [Developer Environment Setup](/setting-up-environment/guide) and [System Layout](/architecture/overview) pages. As of June 2026, ravynOS can be built on Ubuntu Linux 22.04 LTS and derivatives of it. It may also build on other Linux distros. You will need the [current ravynOS SDK](https://github.com/ravynsoft/ravynos/releases/tag/SDK_0.7.0.0) from our GitHub releases. You may optionally install the [Linux host toolchain](https://github.com/ravynsoft/ravynos/releases/tag/linux_tc_0.1) to save build time. The build process will first build the toolchain if it is not present. This can take several hours as it includes clang, tapi, and the rest of LLVM.
+While hacking on pieces you will need to build parts or all of the system locally. First, please see the [System Layout](/architecture/overview) page. As of June 2026, ravynOS can be built on Ubuntu Linux 22.04 LTS and derivatives of it. It may also build on other Linux distros. You will need the [current ravynOS SDK](https://github.com/ravynsoft/ravynos/releases/tag/SDK_0.7.0.0) from our GitHub releases. You may optionally install the [Linux host toolchain](https://github.com/ravynsoft/ravynos/releases/tag/linux_tc_0.1) to save build time. The build process will first build the toolchain if it is not present. This can take several hours as it includes clang, tapi, and the rest of LLVM.
 
 You will need several other packages and tools installed on your host Linux system:
  * `CoreFoundation` (CF-Lite), needed for some host tools
