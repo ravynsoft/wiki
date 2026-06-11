@@ -4,22 +4,15 @@
   "separator1": {
     "type": "separator"
   },
-  "hardware": "Hardware Requirements",
   "architecture": "System Architecture",
-  "setting-up-environment": "Setting up the Developer Environment",
-  "building-ravynos": "Building ravynOS locally",
-  "installing-ravynos": "Installing ravynOS",
+  "building": "Building ravynOS locally",
   "separator2": {
     "type": "separator"
   },
   "app-bundles": "App Bundles",
-  "bootstrapping-ravyn": "Bootstrapping Ravyn",
-  "bootstrapping-arm": "Bootstrapping arm64",
   "separator3": {
     "type": "separator"
   },
-  "tested": "Tested Hardware and Virtual Machines",
-  "download": "Downloading ravynOS ISOs",
   "roadmap": "Roadmap",
   "project-wish-list": "Project Wish List"
 }
