@@ -6,22 +6,16 @@ title: App Bundles
 
 An [Application Bundle](https://developer.apple.com/documentation/foundation/bundle) is a folder with a specific structure that is interpreted by the file manager (Finder) as an executable file. It is intended to contain an application complete with all its supporting resources such that the whole application can be moved or deleted by moving or deleting the bundle folder, and can be run from any location.
 
-ravynOS bundles are very similar to macOS bundles with three main differences:
-
-1.  The executable format inside the bundle is `ELF` instead of `Mach-O` and hence cannot support multiple architectures (i.e. arm64 and amd64) in one executable yet. Transition to Mach-O is planned.
-2.  The executable directory is named ravynOS instead of MacOS
-3.  There is a symlink inside the top level to the executable under Contents/ravynOS.
-
-A bundle can target multiple platforms (known as a "fat bundle") by including more than one executable and a set of shared config and resources. This means it is possible to package an app for both macOS and ravynOS in the same bundle.
+ravynOS bundles are identical to macOS bundles with one exception: the Contents/`OS`/ folder name. Applications built specifically on ravynOS have a `ravynOS` folder. Mac applications have a `MacOS` folder. ravynOS will execute either bundle.
 
 Many applications are written using Objective-C/C++ to take advantage of Cocoa frameworks. While this is preferred, apps can be written in any language and don't need to use the Foundation or AppKit frameworks. The minimum requirements are as follows.
 
-- Implement the minimum Bundle directory structure (see [source](https://github.com/ravynsoft/Firefox_app) of this bundle).
+- Implement the minimum Bundle directory structure.
 
 ```
 Firefox.app
 ├── Contents
-│   ├── ravynOS
+│   ├── ravynOS (or MacOS)
 │   │   └── Firefox
 │   ├── Info.plist
 │   └── Resources
@@ -51,4 +45,4 @@ All apps should follow the Apple [Human Interface Guidelines](https://developer.
 
 New applications must include an application menu titled with the app's name. This is the menu seen just to the right of the Apple logo on macOS applications. It contains standard items such as About, Preferences, Quit. This menu is created automatically for Cocoa applications using AppKit.
 
-Menus are automatically placed into the global menu bar for applications using Cocoa. Qt, GTK, and Java support is planned as well. Some applications may need to be patched to support global menus. RavynOS uses the standard Cocoa NSMenu system, compatible with macOS. Cocoa applications that implement an NSMenu will automatically have it appear in the global menu bar when the application becomes active. Support for the [dbus-menu](https://github.com/ravynsoft/ravynos/blob/main/Frameworks/DBusKit/dbus-menu.xml) spec is likely to happen at some point. This is supported by Qt, GTK, and other frameworks for writing applications that are not using Cocoa.
+Menus are automatically placed into the global menu bar for applications using Cocoa. RavynOS uses the standard Cocoa NSMenu system, compatible with macOS. Cocoa applications that implement an NSMenu will automatically have it appear in the global menu bar when the application becomes active. It is expected that other toolkit and language bindings (e.g. Qt, GTK) that support macOS could be supported on ravynOS as well.
