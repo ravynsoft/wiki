@@ -4,61 +4,71 @@ title: System Architecture
 
 # System Layout Overview
 
-ravynOS combines certain aspects of [FreeBSD](https://freebsd.org/), [XDG](https://freedesktop.org/), and [macOS](https://apple.com/). In general, it tries to follow the layout of macOS.
+ravynOS in general looks like [macOS](https://apple.com/), with a few aspects of [FreeBSD](https://freebsd.org/). It uses a custom [EFI bootloader](https://github.com/ravynsoft/efiloader).
+
+The core system is Darwin 19.6, equivalent to MacOS X 10.15.6 (Catalina). This consists of the XNU kernel, a set of kernel extensions (kexts) implementing kernel components and IOKit drivers, libSystem, and dyld.
+
+Kernel Extensions are the primary way to add hardware support, file systems, and kernel capabilities in ravynOS, and should be written for IOKit. See the AHCI driver in [/Kernel/Extensions/RavynAHCIPort](https://github.com/ravynsoft/ravynos/tree/darwin/Kernel/Extensions/RavynAHCIPort) for an example. Critical extensions are pre-linked with the kernel to create a kernelcache file, which is loaded by the EFI loader. The kernelcache may be compressed with LZVN, although it currently isn't when produced by `plktool`. After the system is up and a root filesystem is available, additional kexts can be loaded from disk.
+
+We can currently boot in a QEMU Q.35 VM with OVMF EFI. More drivers are needed for real hardware.
+
+Most core OS functionality for user processes is provided by libSystem, which is automatically linked to every executable by the compiler (clang). It includes the C runtime, libdispatch, liblaunch, libxpc, blocks runtime, name resolution, system info and notifications, malloc, math, threads, logging, and more. It does NOT include C++, which is LLVM's in /usr/lib/libc++, or Objective-C, which is Apple's objc4 at /usr/lib/libobjc.A.dylib. 
+
+
+## Layer Cake
+```
+         [           User Applications            ]
+         [                Magma DE                ]
+         [    WindowServer    ][    daemons       ]
+         [ CoreFoundation, Foundation, Cocoa, etc ]
+         [            --- launchd ---             ]
+         [ libSystem ][ libc++ ][ libobjc ][ dyld ]
+          ----------------------------------------
+         [ Kernel extensions: IOACPIFamily,       ]
+         [ IOPCIFamily, IOStorageFamily,          ]
+         [ IOGraphics, hfs, msdosfs, pthread,     ]
+         [ corecrypto, etc                        ]
+          ----------------------------------------
+         [ XNU - BSDKernel, Mach, IOKit           ]
+```
+
+We have this stack working up to CoreFoundation, with the exception of launchd currently being a simple stub.
 
 ## System Files
 
-FreeBSD's kernel and base runtime is used to provide better hardware compatibility than something based on Apple's [XNU](https://github.com/apple/darwin-xnu) kernel like [PureDarwin](https://puredarwin.org). Using FreeBSD as the base also gives us Linux app compatibility to help fill gaps in application support until Mac apps are fully working.
+Darwin lives in:
 
-FreeBSD lives in:
-
- * `/boot` 
- * `/bin` 
- * `/etc`
- * `/lib` 
- * `/libexec` 
- * `/sbin` 
- * `/usr` 
- * `/var` 
+ * `/usr/lib` - `dyld`, `libSystem.B.dylib`, `/usr/lib/system/*`, `libc++`, `libobjc.A`, etc
+ * `/System/Library/CoreServices` 
+ * `/System/Library/Kernels`
+ * `/System/Library/Extensions` 
+ * `/System/Library/Frameworks` - `System`, `Kernel`, `IOKit` and `DriverKit` frameworks (with headers) 
  
 Some special directories are also used: 
 
  * `/dev` (device files) 
  * `/tmp` (temporary files) 
- * `/proc` (running process information) 
- * `/media`
- * `/mnt` 
- * `/net` (special mount points - mostly unused in ravynOS). 
  
-There is also a small rescue system in `/rescue` which can be used for system recovery and user `root`'s files in `/root`. The source code for this base system can be found in the [ravynOS](https://github.com/ravynsoft/ravynos) repository. For more information on FreeBSD itself, please see the [FreeBSD Handbook](https://docs.freebsd.org/en/books/handbook/) - but be careful! ravynOS is not FreeBSD; it is ''based'' on FreeBSD. There are significant differences.
-
-This ravynOS repository includes our modified compiler and linker (`clang` and `lld`) which understand how to build and link ELF Framework bundles.
-
 You can (and should) safely ignore these OS directories unless you are working on the base system.
 
-Most of the system files provided by Ravyn live under `/System/Library`. Notably, the Cocoa compatibility APIs live in the `Frameworks` folder here. System fonts exist in the `Fonts` folder and desktop wallpapers can be found under `Desktop Pictures`. Important system services like Filer and startup code are found in `CoreServices` (not to be confused with the `CoreServices.framework`). Source code for most things here can be found in the main [ravynOS](https://github.com/ravynsoft/ravynos) repository. Some items (like Fonts and Desktop Pictures) are fetched as part of building the Live CD ISO and are then copied into the installed system by the installer. Source code for the CD build can be found in the [ravynOS](https://github.com/ravynsoft/ravynos) GitHub repository.
+Most of the system files provided by ravynOS live under `/System/Library`.
+ * `Frameworks` contains our CoreFoundation, CFNetwork, Foundation, CoreData, CoreText, CoreVideo, CoreGraphics, QuartzCore, LaunchServices, IOKit, and AppKit frameworks. Most of these have many stub functions that need to be implemented.
+ * `Fonts`
+ * `Desktop Pictures`
+ * `CoreServices`
+
+The command line BSD environment lives mainly in `/bin`, `/sbin`, `/usr/bin`, `/etc`, and `/var`. Certain macOS/ravynOS specific tools like `open`, `plutil`, etc are also here.
 
 ## Applications
 
-Applications in ravynOS should be packaged as AppBundles with the directory name ending in `.app` and stored in either `/Applications` or `~/Applications` (although they can technically be stored or moved anywhere). Applications may also be packaged in the [AppDir](https://docs.appimage.org/reference/appdir.html) format. Linux applications can also use [AppImage](https://docs.appimage.org/introduction/index.html) format. Bundles are the preferred format.
-
+Applications in ravynOS should be packaged as AppBundles with the directory name ending in `.app` and stored in either `/Applications` or `~/Applications` (although they can technically be stored or moved anywhere). 
 Some Applications here are provided with ravynOS and others may be installed by users. As on macOS, this is the primary place to find installed software.
-
-Traditional Unix applications and tools generally live in `/usr/bin` or `/usr/local/bin` and various other directories such as `/usr/share, /var/lib, /etc`. Other the ones provided by the system, this type of application should be avoided. (A future package system such as Homebrew will allow sane management of user-installed Unix tools in `/usr/local`.) If you really need something not provided by the system and not available as an Application, you can build it from the FreeBSD Ports collection.
-
-Each user also has a `Applications` folder in their home directory.
 
 ## Library
 
 `/Library` is used for system-level or shared files that are not strictly "system" files, such as application-installed fonts and Java SDKs. Think of it roughly like a combination of `/usr/lib` and `/usr/share`. Each user has a personal `Library` folder in their home directory which is used to store per-user configuration, application support data, individual fonts, cached data, etc.
 
-On ravynOS, each user has a LaunchServices database in `~/Library/db/launchservices.db`. This database controls which applications are known, what types they can open, and which is used to open files. It is maintained by Filer and the `open` through the `LaunchServices.framework`.
-
-The XDG folders used by many X11 applications have also been relocated into `~/Library`.
-* `XDG_CONFIG_HOME`, normally `~/.config`, is `~/Library/FreeDesktop/config`
-* `XDG_DATA_HOME`, normally `~/.local/share`, is `~/Library/FreeDesktop/share`
-
-This means many standard X11 & KDE app config files will be found there instead. (Note: `XDG_CACHE_HOME` still points to `~/.cache` but will likely move in the future.)
+On ravynOS, each user has a LaunchServices database in `~/Library/db/launchservices.db`. This database controls which applications are known, what types they can open, and which is used to open files.
 
 [This MIT knowledge base article](http://kb.mit.edu/confluence/pages/viewpage.action?pageId=3908373) has a good explanation of the multiple Library folders on macOS.
 

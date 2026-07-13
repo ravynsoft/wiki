@@ -1,0 +1,120 @@
+---
+title: Building ravynOS locally
+---
+
+import { Steps } from "nextra-theme-docs";
+
+# Building ravynOS Locally
+
+While hacking on pieces you will need to build parts or all of the system locally. First, please see the [System Layout](/architecture/overview) page. As of June 2026, ravynOS can be built on Ubuntu Linux 22.04 LTS and derivatives of it. It may also build on other Linux distros. You will need the [current ravynOS SDK](https://github.com/ravynsoft/ravynos/releases/tag/SDK_0.7.0.0) from our GitHub releases. You may optionally install the [Linux host toolchain](https://github.com/ravynsoft/ravynos/releases/tag/linux_tc_0.1) to save build time. The build process will first build the toolchain if it is not present. This can take several hours as it includes clang, tapi, and the rest of LLVM.
+
+You will need several other packages and tools installed on your host Linux system:
+ * `CoreFoundation` (CF-Lite), needed for some host tools
+ * `bmake`, the BSD make
+ * `bison` (either GNU or BSD flavor)
+ * `clang`, `clang++`, and `lld` 14.x - 17.x
+ * LLVM's `libc++` and `libc++abi`
+ * `libbsd` to provide some missing essentials like `kqueue()` and `strlcpy()` used in host tools
+ * `libxml2`
+ * Perl 5.x and Python 3.x (around 3.10 is ideal)
+ * Standard Unix CLI tools - cp, mv, awk, sed, rm, tar, etc
+ * `sudo`, ideally configured to allow passwordless use for automated builds
+
+### Preparing to build
+
+For best results, you should use a case-insensitive, case-preserving HFS+ volume for the source and binary trees. MacOS assumes case-insensitivity and some parts of the build may fail on other filesystems. Most Linux distros support HFS and have packages available for the required tools.
+
+ravynOS uses the BSD make system and builds out of tree to an object directory. The object directory is normally `../build/${source root}` - i.e. one level up from your source root with the name 'build' and containing objects with the name of their paths in the source tree. (There are a few exceptions to this pattern.)
+
+### Building the OS
+
+To build the whole system incrementally (changed files only), change directory to the root of your ravynOS source tree and use the command:
+
+`sudo HOST_CC=/usr/bin/clang HOST_CXX=/usr/bin/clang++ bmake -m $(pwd)/BSD/share/mk -j8 world`
+
+Substitute an appropriate number of jobs equal to the number of CPUs you have available. e.g. if you want to use 4 cores, use `-j4` instead of `-j8`.
+
+The build process will iterate through Developer (developer tooling), Kernel (xnu, extensions, IOKit), Libraries (dyld, libobjc, libc++, libSystem and all its components), Frameworks (CoreFoundation, Foundation, Cocoa and Quartz APIs), BSD CLI subsystem, and the Magma desktop environment (WindowServer, Dock, SystemUIServer, LoginWindow). As of June 2026, the system will build up to CoreFoundation and Foundation.
+
+### Creating a bootable VM image
+
+Making and booting a VM image requires QEMU and its tools, the output of "Building the OS" above, and the EFI loader. You can build the EFI loader or use one of the released versions from our GitHub.
+
+You need to create a disk image the first time you do this. It can just be updated afterwards. To create the initial image:
+ * `qemu-img create -f raw disk.img 4G`
+ * `fdisk disk.img` - initialize the disk as GPT and create two partitions. The first is a 512MB EFI System partition and the second is a 3.5GB HFS+ partition. Save changes and exit.
+ * `sudo losetup -P loop0 disk.img` - create a virtual disk for the image
+ * `sudo mkfs.msdos -n EFI /dev/loop0p1`
+ * `sudo mkfs.hfsplus -v "ravynOS HD" /dev/loop0p2`
+
+Once you have an image, you can mount it any time for updates by using `losetup -P loop0 disk.img` followed by `mount /dev/loop0p1 /mnt` or `mount /dev/loop0p2 /mnt`. (Substitute paths as needed. You may also want to specify `uid=$(id -u)` to make it writable without sudo.)
+
+With the EFI partition mounted (we'll use `/mnt` here), use these commands to update or create the contents. Substitute the appropriate paths to your EFI loader (loader.efi), kernelcache, and plist.
+ * `mkdir -p /mnt/EFI/BOOT /mnt/EFI/ravynOS`
+ * `cp -f loader.efi /mnt/EFI/BOOT/BOOTX64.EFI`
+ * `cp -f kernelcache /mnt/EFI/ravynOS/kernelcache`
+ * `cp -f com.ravynos.boot.plist /mnt/EFI/ravynOS/com.ravynos.boot.plist`
+ * `sudo umount /mnt`
+
+Now you need to create the HFS+ root volume where userspace lives. We will use /mnt again for this. You can use any empty directory. SDKROOT should contain the path to your ravynOS.sdk bundle.
+ * `sudo mount /dev/loop0p2 /mnt`
+ * `mkdir -p /mnt/usr; cp -fR $SDKROOT/usr/lib /mnt/usr`
+ * `mkdir -p /mnt/System/Library`
+ * `cp -fR $SDKROOT/System/Library/Frameworks $SDKROOT/System/Library/CoreServices /mnt/System/Library/`
+ * `mkdir -p /mnt/private/etc /mnt/private/tmp /mnt/private/var/db /mnt/private/var/vm`
+ * `ln -sf private/etc /mnt/etc; ln -sf private/tmp /mnt/tmp; ln -sf private/var /mnt/var`
+
+Finally, we need something at `/sbin/launchd` for the kernel to load. Although we do have launchd, it is not yet part of the build output and we'll use a little C stub until it's ready. Compile the code below with `clang --sysroot=$SDKROOT -mmacos-version-min=10.15 -o /mnt/sbin/launchd launchd_stub.c` after writing it to `launchd_stub.c`.
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(int argc, char **argv)
+{
+    int wstatus = 0;
+
+    close(0);
+    close(1);
+    close(2);
+    open("/dev/console", O_RDONLY);
+    open("/dev/console", O_WRONLY);
+    open("/dev/console", O_WRONLY);
+    
+    printf("Hello from fake /sbin/launchd!\n");
+
+    /* Do stuff here, like fork() other processes */
+
+    printf("Waiting on children");
+    while(1) { // init can't exit.
+        waitpid(-1, &wstatus, WNOHANG);
+        sleep(1);
+    }
+    return 0;
+}       
+```
+
+Unmount your disk image and clear the loopback device: `sudo umount /mnt; sudo losetup -D`
+
+That's it! You now should have a bootable disk image for ravynOS 0.7.0! It doesn't do much yet, but it should boot to the fake launchd in a console.
+
+Here is a working QEMU command line:
+```
+    qemu-system-x86_64 -m 4G -M q35 -s -accel kvm \
+    -cpu Skylake-Server-v5,+vmware-cpuid-freq,+invtsc \
+    -smp 4,cores=4,sockets=1 \
+    -device qemu-xhci,id=xhci -device usb-kbd,bus=xhci.0 -device usb-tablet,bus=xhci.0 \
+    -device isa-applesmc,osk="ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc" \
+    -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,read-only=true \
+    -drive if=pflash,format=raw,file=$HOME/OVMF_VARS.fd \
+    -drive if=ide,id=disk0,file=$HOME/disk.img,format=raw \
+    -smbios type=2 -device virtio-rng-pci,rng=rng0 \
+    -object rng-random,id=rng0,filename=/dev/urandom \
+    -serial file:serial.log \
+    -netdev user,id=net0,hostfwd=udp::41139-:41139 \
+    -device virtio-net-pci,netdev=net0,id=net0,mac=52:54:00:c9:18:27 \
+    -device vmware-svga
+```
